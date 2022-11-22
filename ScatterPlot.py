@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy import stats 
 
 # scatterplot 1
 xpoints = np.array([1, 2, 6, 8, 19, 7, 6, 2, 8, 3, 2, 4, 6, 10])
@@ -27,7 +28,15 @@ sizes = 10 * np.random.randint(100, size=(100))
 x = np.random.normal(5.0, 1.0, 100)    # mean = 5.0; sd = 1.0; n points = 100
 y = np.random.normal(10.0, 2.0, 100)   # mean = 10.0; sd = 2.0; n points = 100
 
+slope, intercept, r, p, std_err = stats.linregress(x, y)
+
+def func(x):
+    return slope * x + intercept
+
+mymodel = list(map(func, x))
+
 plt.scatter(x, y)
+plt.plot(x, mymodel)
 
 plt.title("Cute points")
 plt.xlabel("cats")
