@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import stats 
+#import sklearn
+import pandas as pd 
+
 
 # number of data points
 n_points = 100
@@ -30,3 +33,4 @@ print("pear_corr: ", pear_corr)
 
 plt.scatter(x, y)
 plt.show()
+
