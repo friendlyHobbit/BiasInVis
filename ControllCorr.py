@@ -35,10 +35,11 @@ def CreateScatter(sd, x):
 
     return y
 
-# save y    
+# save y
+global_y = CreateScatter(stand_dev, set_x)     
 
 # get regression variables
-slope, intercept, r, p, std_err = stats.linregress(set_x, CreateScatter(stand_dev, set_x)) # cut out 
+slope, intercept, r, p, std_err = stats.linregress(set_x, global_y) 
 
 
 # calculate the regression line, returns y
@@ -56,12 +57,15 @@ mymodel = list(map(myfunc, set_x))
 def GetRegOutlier():
     outlier_list = []
 
+    err = np.abs(global_y - myfunc(set_x))
+    outlier_list = np.greater(err, 1)
+
     # for each y value, calculate distance to regression line at point y
-    for y in CreateScatter(stand_dev, set_x):
-        err = np.abs(y - myfunc(set_x))
-        if err > 1:
+    #for y in global_y:
+    #    err = np.abs(y - myfunc(set_x))
+    #    if err > 1:
             #add y to list
-            outlier_list.append(y)
+    #        outlier_list.append(y)
     
     return outlier_list
     
@@ -141,11 +145,11 @@ print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
 #plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=clr, alpha=0.7)
 
 
-# main data
-clrs = ['green' if i>0 else 'red' for i in set_x]
-plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=clrs , alpha=0.7)
-#plt.scatter(set_x, GetRegOutlier(), c='red', alpha=0.7)
+outList = GetRegOutlier()
+not_outList = np.logical_not(outList)
 
+plt.scatter(set_x[not_outList], global_y[not_outList], c='green' , alpha=0.7)
+plt.scatter(set_x[outList], global_y[outList], c='red' , alpha=0.7)
 
 plt.plot(set_x, mymodel)
 
