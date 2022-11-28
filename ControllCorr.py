@@ -9,21 +9,19 @@ import pandas as pd
 n_data_points = 100
 stand_dev = 4
 set_corr = 0.4
-set_x = np.random.uniform(1, 20, n_data_points) 
+#set_x = np.random.uniform(1, 20, n_data_points) 
+set_x = np.random.standard_normal(n_data_points)
 
 error = 0.01
 
 def CreateScatter(sd, x):
     temp_sd = sd
     for i in range(200):
-        #print("i: ", i)
-        #x = np.random.uniform(1, 20, n_data_points) 
         y = x + np.random.normal(0, temp_sd, n_data_points) # mean, sd, n data points 
 
         # normal distribution assumed
         # calculate correlation based on
         pear_corr, p_var = stats.pearsonr(x, y)
-        #print("pear_corr: ", pear_corr)
 
         # if found correlation is bigger than set correlation, increase variance; else if found correlation is smaller than set correlation, decrease variance
         if pear_corr < set_corr:
@@ -36,12 +34,14 @@ def CreateScatter(sd, x):
             break
 
     return y
-    
+
+# save y    
 
 # get regression variables
-slope, intercept, r, p, std_err = stats.linregress(set_x, CreateScatter(stand_dev, set_x))
+slope, intercept, r, p, std_err = stats.linregress(set_x, CreateScatter(stand_dev, set_x)) # cut out 
 
-# calculate the regression line
+
+# calculate the regression line, returns y
 def myfunc(x):
   return slope * x + intercept
 
@@ -52,6 +52,34 @@ mymodel = list(map(myfunc, set_x))
 #print("predict_n: ", predict_n)
 
 
+# Regression line error methof for outlier detection, returns list with outlier points
+def GetRegOutlier():
+    outlier_list = []
+
+    # for each y value, calculate distance to regression line at point y
+    for y in CreateScatter(stand_dev, set_x):
+        err = np.abs(y - myfunc(set_x))
+        if err > 1:
+            #add y to list
+            outlier_list.append(y)
+    
+    return outlier_list
+    
+
+
+# set dot color, takes numbers array, returns color 
+def SetRegOutlierColor(ol):
+    for i in ol:
+        if i > 2:
+            clr = 'red'
+            return clr
+        else:
+            clr = 'black'
+            return clr
+
+
+
+# IQR method
 # calculate outliers based on IQR, give 1 dimentional data as input
 def OutlierDetector(d):
     # calculate Q1 and Q3
@@ -60,43 +88,65 @@ def OutlierDetector(d):
     upperq = q3 + 1.5*iqr
     lowerq = q1 - 1.5*iqr
 
+    # prints
+#    print("q1: ", q1)
+#    print("q3: ", q3)
+#    print("IQR: ", iqr)
+#    print("upperq: ", upperq)
+#    print("lowerq: ", lowerq)
+
     return upperq, lowerq
 
-print("outlier x: ", OutlierDetector(set_x))
+#print("min set y: ", np.min(CreateScatter(stand_dev, set_x)))
+#print("max set y: ", np.max(CreateScatter(stand_dev, set_x)))
+#print("outlier y: ", OutlierDetector(CreateScatter(stand_dev, set_x)))
 #print("outlier y: ", OutlierDetector(CreateScatter(stand_dev, set_x)))
 
 
+# IQR method
 # set color dependent on IQR, give upper, lower bounds and 1d data
 def SetOutlierColor(u, l, d):
     for n in d:
         # if outside IQR
-        if n > u:
-            clr = '#1f77b4'
-        elif n < l:
-            clr = '#1f77b4'
+        if n >= u:
+            clr = 'red'
+            print("outlier")
+            return clr
+        elif n <= l:
+            clr = 'red'
+            print("outlier")
+            return clr
         # else it´s outside IQR
         else:
-            clr = '#bcbd22'
-    return clr
-
-
-
-# for each x value, calculate distance to regression line
-for y in CreateScatter(stand_dev, set_x):
-    err = np.abs(y - myfunc(y))
-    #print(err) 
+            clr = 'black'
+            return clr
+    
 
 
 # correlation coefficient
 print("r: ", r)
 print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
-print("slope: ", slope)
 
+
+# get y points outside IQR
+#upperqy, lowerqy = OutlierDetector(CreateScatter(stand_dev, set_x))
+#scatter_c = SetOutlierColor(upperqy, lowerqy, CreateScatter(stand_dev, set_x))
 
 # get x points outside IQR
-upperqx, lowerqx = OutlierDetector(set_x)
+#upperqx, lowerqx = OutlierDetector(set_x)
+#scatter_c = SetOutlierColor(upperqx, lowerqx, set_x)
 
-plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=SetOutlierColor(upperqx, lowerqx, set_x), alpha=0.7)
+# try color outliers
+#clr = SetRegOutlierColor(GetRegOutlier())
+#plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=clr, alpha=0.7)
+
+
+# main data
+clrs = ['green' if i>0 else 'red' for i in set_x]
+plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=clrs , alpha=0.7)
+#plt.scatter(set_x, GetRegOutlier(), c='red', alpha=0.7)
+
+
 plt.plot(set_x, mymodel)
 
 # Plot formatting
@@ -105,9 +155,9 @@ plt.xticks(color='w')
 plt.xlabel("Drownings")
 plt.ylabel("Ice-cream sales")
 
+# check for outliers 
+#plt.boxplot(CreateScatter(stand_dev, set_x))
 
 plt.show()
-#plt.scatter(x, y, c=colors, s=sizes, alpha=0.5, cmap='nipy_spectral')
-#plt.colorbar()
 
 
