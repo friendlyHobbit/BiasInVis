@@ -38,6 +38,8 @@ def CreateScatter(sd, x):
 # save y
 global_y = CreateScatter(stand_dev, set_x)     
 
+
+
 # get regression variables
 slope, intercept, r, p, std_err = stats.linregress(set_x, global_y) 
 
@@ -53,39 +55,10 @@ mymodel = list(map(myfunc, set_x))
 #print("predict_n: ", predict_n)
 
 
-# Regression line error methof for outlier detection, returns list with outlier points
-def GetRegOutlier():
-    outlier_list = []
-
-    err = np.abs(global_y - myfunc(set_x))
-    outlier_list = np.greater(err, 1)
-
-    # for each y value, calculate distance to regression line at point y
-    #for y in global_y:
-    #    err = np.abs(y - myfunc(set_x))
-    #    if err > 1:
-            #add y to list
-    #        outlier_list.append(y)
-    
-    return outlier_list
-    
-
-
-# set dot color, takes numbers array, returns color 
-def SetRegOutlierColor(ol):
-    for i in ol:
-        if i > 2:
-            clr = 'red'
-            return clr
-        else:
-            clr = 'black'
-            return clr
-
-
 
 # IQR method
 # calculate outliers based on IQR, give 1 dimentional data as input
-def OutlierDetector(d):
+def OutlierDetectorIQR(d):
     # calculate Q1 and Q3
     q1, q3 = np.percentile(d, [25, 75])
     iqr = q3 - q1
@@ -101,29 +74,27 @@ def OutlierDetector(d):
 
     return upperq, lowerq
 
-#print("min set y: ", np.min(CreateScatter(stand_dev, set_x)))
-#print("max set y: ", np.max(CreateScatter(stand_dev, set_x)))
-#print("outlier y: ", OutlierDetector(CreateScatter(stand_dev, set_x)))
-#print("outlier y: ", OutlierDetector(CreateScatter(stand_dev, set_x)))
 
 
-# IQR method
-# set color dependent on IQR, give upper, lower bounds and 1d data
-def SetOutlierColor(u, l, d):
-    for n in d:
-        # if outside IQR
-        if n >= u:
-            clr = 'red'
-            print("outlier")
-            return clr
-        elif n <= l:
-            clr = 'red'
-            print("outlier")
-            return clr
-        # else it´s outside IQR
-        else:
-            clr = 'black'
-            return clr
+# Regression line error methof for outlier detection, returns list with outlier points
+def GetRegOutlier():
+    outlier_list = []
+    outlier_criteria = 5
+
+    # Calculate y distance of each dot to reg line
+    err = np.abs(global_y - myfunc(set_x))
+
+    # check the IQR of error point
+    iqr_err_upper, iqr_err_lower = OutlierDetectorIQR(err)
+    print("iqr_outliers: ", iqr_err_upper)
+    outl = np.greater(err, iqr_err_upper)
+    print("outl: ", outl)
+
+    # Only add dots list with a distance bigger than 1 ?
+    outlier_list = np.greater(err, outlier_criteria)
+    print("outlier_list: ", outlier_list)
+
+    return outlier_list
     
 
 
@@ -148,8 +119,16 @@ print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
 outList = GetRegOutlier()
 not_outList = np.logical_not(outList)
 
-plt.scatter(set_x[not_outList], global_y[not_outList], c='green' , alpha=0.7)
-plt.scatter(set_x[outList], global_y[outList], c='red' , alpha=0.7)
+#plt.scatter(set_x, global_y, c='black' , alpha=0.7)
+
+# Dark outliers
+#plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
+#plt.scatter(set_x[outList], global_y[outList], c='#454545' , alpha=0.8)
+
+# light outliers
+plt.scatter(set_x[not_outList], global_y[not_outList], c='#454545' , alpha=0.8)
+plt.scatter(set_x[outList], global_y[outList], c='#999999' , alpha=0.8)
+
 
 plt.plot(set_x, mymodel)
 
