@@ -75,6 +75,21 @@ def OutlierDetectorIQR(d):
     return upperq, lowerq
 
 
+# caclulates ouliers in dataset (mean +- 3 * SD), takes dataset, returns database with outliers and outlier bound
+def ThreeSDmean(d):
+    outlier_d = []
+    # mean +- 3 * SD
+
+    outlier_bound = 3 * d.std()
+
+    print("d max: ", d.max())
+    print("outlier_bound: ", outlier_bound)
+    outlier_d = d[np.abs(d - d.mean()) > outlier_bound]
+
+    print("outlier_d size: ", outlier_d.size)
+
+    return outlier_d, outlier_bound
+
 
 # Regression line error methof for outlier detection, returns list with outlier points
 def GetRegOutlier():
@@ -86,13 +101,18 @@ def GetRegOutlier():
 
     # check the IQR of error point
     iqr_err_upper, iqr_err_lower = OutlierDetectorIQR(err)
-    print("iqr_outliers: ", iqr_err_upper)
-    outl = np.greater(err, iqr_err_upper)
-    print("outl: ", outl)
+    #print("Max err value: ", np.max(err))
+    #print("upper IQR value: ", iqr_err_upper)
+    #outlier_criteria = iqr_err_upper
+
+    # try sd method
+    outlier_set, outlier_bound = ThreeSDmean(err)
+    outlier_criteria = outlier_bound
 
     # Only add dots list with a distance bigger than 1 ?
-    outlier_list = np.greater(err, outlier_criteria)
-    print("outlier_list: ", outlier_list)
+    outlier_list = np.greater(err, outlier_criteria)   
+
+    #plt.boxplot(err)
 
     return outlier_list
     
@@ -122,15 +142,15 @@ not_outList = np.logical_not(outList)
 #plt.scatter(set_x, global_y, c='black' , alpha=0.7)
 
 # Dark outliers
-#plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
-#plt.scatter(set_x[outList], global_y[outList], c='#454545' , alpha=0.8)
+plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
+plt.scatter(set_x[outList], global_y[outList], c='#454545' , alpha=0.8)
 
 # light outliers
-plt.scatter(set_x[not_outList], global_y[not_outList], c='#454545' , alpha=0.8)
-plt.scatter(set_x[outList], global_y[outList], c='#999999' , alpha=0.8)
+#plt.scatter(set_x[not_outList], global_y[not_outList], c='#454545' , alpha=0.8)
+#plt.scatter(set_x[outList], global_y[outList], c='#999999' , alpha=0.8)
 
 
-plt.plot(set_x, mymodel)
+#plt.plot(set_x, mymodel)
 
 # Plot formatting
 plt.yticks(color='w')
