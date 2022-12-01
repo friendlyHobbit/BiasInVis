@@ -11,7 +11,7 @@ stand_dev = 4
 set_corr = 0.4
 #set_x = np.random.uniform(1, 20, n_data_points) 
 set_x = np.random.standard_normal(n_data_points)
-
+# error for adjusting the scatter to fit the correlation coefficient
 error = 0.01
 
 def CreateScatter(sd, x):
@@ -58,7 +58,7 @@ mymodel = list(map(myfunc, set_x))
 
 # IQR method
 # calculate outliers based on IQR, give 1 dimentional data as input
-def OutlierDetectorIQR(d):
+def OutlierDetectorIQR(d):      # shows some outliers for x, and y
     # calculate Q1 and Q3
     q1, q3 = np.percentile(d, [25, 75])
     iqr = q3 - q1
@@ -69,26 +69,51 @@ def OutlierDetectorIQR(d):
 #    print("q1: ", q1)
 #    print("q3: ", q3)
 #    print("IQR: ", iqr)
-#    print("upperq: ", upperq)
-#    print("lowerq: ", lowerq)
+    print("upperq: ", upperq)
+    print("max: ", d.max())
+    print("lowerq: ", lowerq)
+    print("min: ", d.min())
 
-    return upperq, lowerq
+    # add to array: all data greater than upper and less than lower
+    outlier_list = np.greater(d, upperq) & np.less(d, lowerq)
+    #print("outlier_list: ", outlier_list)
+    inlier_list = np.less(d, upperq) & np.greater(d, lowerq)
+    #print("inlier_list: ", inlier_list)
+
+    return upperq, lowerq, outlier_list, inlier_list
 
 
 # caclulates ouliers in dataset (mean +- 3 * SD), takes dataset, returns database with outliers and outlier bound
-def ThreeSDmean(d):
+def ThreeSDmean(d):     # shows no outliers for x, or y
     outlier_d = []
-    # mean +- 3 * SD
 
+    # mean +- 3 * SD
     outlier_bound = 3 * d.std()
 
-    print("d max: ", d.max())
+    # outlier bound of the data
     print("outlier_bound: ", outlier_bound)
     outlier_d = d[np.abs(d - d.mean()) > outlier_bound]
 
-    print("outlier_d size: ", outlier_d.size)
+    # Size of new list with only outliers
+    #print("outlier_d size: ", outlier_d.size)
 
     return outlier_d, outlier_bound
+
+
+# investigate outliers x
+#plt.boxplot(set_x)
+#print("three sd away from mean:")
+#ThreeSDmean(set_x)
+#print("IQR method")
+#OutlierDetectorIQR(set_x)
+
+# investigate outliers y
+#plt.boxplot(global_y)
+#print("three sd away from mean:")
+#ThreeSDmean(global_y)
+#print("IQR method")
+#OutlierDetectorIQR(global_y)
+
 
 
 # Regression line error methof for outlier detection, returns list with outlier points
@@ -117,35 +142,27 @@ def GetRegOutlier():
     return outlier_list
     
 
+# ----- Outliers (IQR) of X and Y ------
+# calculate upper, lower bounds of x
+uox, lox, outlx, inlx = OutlierDetectorIQR(set_x)
+# calculate upper, lower bounds of y
+uoy, loy, outly, inly = OutlierDetectorIQR(global_y)
+# show
+#plt.scatter(set_x[outlx], global_y[outly], c='#999999' , alpha=0.8)              # outlier
+#plt.scatter(set_x[inlx], global_y[inly], c='#454545' , alpha=0.8)     # inlier
 
-# correlation coefficient
-print("r: ", r)
-print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
+# ----- Outliers far away from regression line ------
+#outList = GetRegOutlier()   # np array of bool
+#not_outList = np.logical_not(outList)
 
+# ----- Control ------
+plt.scatter(set_x, global_y, c='#454545', alpha=0.7)
 
-# get y points outside IQR
-#upperqy, lowerqy = OutlierDetector(CreateScatter(stand_dev, set_x))
-#scatter_c = SetOutlierColor(upperqy, lowerqy, CreateScatter(stand_dev, set_x))
+# ----- Dark outliers ------
+#plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
+#plt.scatter(set_x[outList], global_y[outList], c='#454545' , alpha=0.8)
 
-# get x points outside IQR
-#upperqx, lowerqx = OutlierDetector(set_x)
-#scatter_c = SetOutlierColor(upperqx, lowerqx, set_x)
-
-# try color outliers
-#clr = SetRegOutlierColor(GetRegOutlier())
-#plt.scatter(set_x, CreateScatter(stand_dev, set_x), c=clr, alpha=0.7)
-
-
-outList = GetRegOutlier()
-not_outList = np.logical_not(outList)
-
-#plt.scatter(set_x, global_y, c='black' , alpha=0.7)
-
-# Dark outliers
-plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
-plt.scatter(set_x[outList], global_y[outList], c='#454545' , alpha=0.8)
-
-# light outliers
+# ------ light outliers ------
 #plt.scatter(set_x[not_outList], global_y[not_outList], c='#454545' , alpha=0.8)
 #plt.scatter(set_x[outList], global_y[outList], c='#999999' , alpha=0.8)
 
@@ -158,8 +175,11 @@ plt.xticks(color='w')
 plt.xlabel("Drownings")
 plt.ylabel("Ice-cream sales")
 
-# check for outliers 
-#plt.boxplot(CreateScatter(stand_dev, set_x))
+
+# correlation coefficient
+print("r: ", r)
+print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
+
 
 plt.show()
 
