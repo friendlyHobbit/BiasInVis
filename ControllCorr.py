@@ -8,9 +8,11 @@ import pandas as pd
 # set controlled variables
 n_data_points = 100
 stand_dev = 4
-set_corr = 0.4
+set_corr = 0.6
 #set_x = np.random.uniform(1, 20, n_data_points) 
-set_x = np.random.standard_normal(n_data_points)
+#set_x = np.random.standard_normal(n_data_points)
+set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in range(6))/6
+#set_x = np.random.normal(0, 3, n_data_points)
 # error for adjusting the scatter to fit the correlation coefficient
 error = 0.01
 
@@ -64,21 +66,24 @@ def OutlierDetectorIQR(d):      # shows some outliers for x, and y
     iqr = q3 - q1
     upperq = q3 + 1.5*iqr
     lowerq = q1 - 1.5*iqr
-
+    #upperq = 10
+    #lowerq = 5
+    
     # prints
 #    print("q1: ", q1)
 #    print("q3: ", q3)
 #    print("IQR: ", iqr)
-    print("upperq: ", upperq)
-    print("max: ", d.max())
-    print("lowerq: ", lowerq)
-    print("min: ", d.min())
+#    print("upperq: ", upperq)
+#    print("max: ", d.max())
+#    print("lowerq: ", lowerq)
+#    print("min: ", d.min())
 
-    # add to array: all data greater than upper and less than lower
-    outlier_list = np.greater(d, upperq) & np.less(d, lowerq)
-    #print("outlier_list: ", outlier_list)
-    inlier_list = np.less(d, upperq) & np.greater(d, lowerq)
-    #print("inlier_list: ", inlier_list)
+    # add outliers to array: all data greater than upper and less than lower
+    greater_upperq = np.greater(d, upperq)
+    lesser_lesserq = np.less(d, lowerq)
+     
+    outlier_list = np.logical_or(greater_upperq, lesser_lesserq)     #np.greater(d, upperq) & np.less(d, lowerq)
+    inlier_list = np.logical_not(outlier_list)                       #np.less(d, upperq) & np.greater(d, lowerq)
 
     return upperq, lowerq, outlier_list, inlier_list
 
@@ -140,23 +145,32 @@ def GetRegOutlier():
     #plt.boxplot(err)
 
     return outlier_list
-    
+
+
+
+# ----- Control ------
+#plt.scatter(set_x, global_y, c='#454545', alpha=0.8)    
+
 
 # ----- Outliers (IQR) of X and Y ------
-# calculate upper, lower bounds of x
 uox, lox, outlx, inlx = OutlierDetectorIQR(set_x)
-# calculate upper, lower bounds of y
 uoy, loy, outly, inly = OutlierDetectorIQR(global_y)
-# show
-#plt.scatter(set_x[outlx], global_y[outly], c='#999999' , alpha=0.8)              # outlier
-#plt.scatter(set_x[inlx], global_y[inly], c='#454545' , alpha=0.8)     # inlier
+
+out_all = np.logical_or(outly, outlx)
+in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
+
+# ----- light outliers -------
+#plt.scatter(set_x[in_all], global_y[in_all], c='#454545' , alpha=0.8)     # inlier
+#plt.scatter(set_x[out_all], global_y[out_all], c='#999999' , alpha=0.8)              # outlier
+
+# ----- dark outliers -------
+plt.scatter(set_x[in_all], global_y[in_all], c='#999999' , alpha=0.8)     # inlier
+plt.scatter(set_x[out_all], global_y[out_all], c='#454545' , alpha=0.8)              # outlier
+
 
 # ----- Outliers far away from regression line ------
 #outList = GetRegOutlier()   # np array of bool
 #not_outList = np.logical_not(outList)
-
-# ----- Control ------
-plt.scatter(set_x, global_y, c='#454545', alpha=0.7)
 
 # ----- Dark outliers ------
 #plt.scatter(set_x[not_outList], global_y[not_outList], c='#999999' , alpha=0.8)
