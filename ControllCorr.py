@@ -16,9 +16,13 @@ set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in r
 # error for adjusting the scatter to fit the correlation coefficient
 error = 0.01
 
+#test
+i = 0
+
+
 def CreateScatter(sd, x):
     temp_sd = sd
-    for i in range(200):
+    for i in range(500):
         y = x + np.random.normal(0, temp_sd, n_data_points) # mean, sd, n data points 
 
         # normal distribution assumed
@@ -148,6 +152,16 @@ def GetRegOutlier():
 
 
 
+# ----- Plot prettiness -------
+dark_grey = '#454545'
+light_grey = '#999999'
+# Plot formatting
+plt.yticks(color='w')
+plt.xticks(color='w')
+plt.xlabel("Video games")
+plt.ylabel("Sexism")
+
+
 # ----- Control ------
 #plt.scatter(set_x, global_y, c='#454545', alpha=0.8)    
 
@@ -164,8 +178,8 @@ in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
 #plt.scatter(set_x[out_all], global_y[out_all], c='#999999' , alpha=0.8)              # outlier
 
 # ----- dark outliers -------
-plt.scatter(set_x[in_all], global_y[in_all], c='#999999' , alpha=0.8)     # inlier
-plt.scatter(set_x[out_all], global_y[out_all], c='#454545' , alpha=0.8)              # outlier
+plt.scatter(set_x[in_all], global_y[in_all], c=dark_grey)     # inlier
+plt.scatter(set_x[out_all], global_y[out_all], c=light_grey)              # outlier
 
 
 # ----- Outliers far away from regression line ------
@@ -183,16 +197,10 @@ plt.scatter(set_x[out_all], global_y[out_all], c='#454545' , alpha=0.8)         
 
 #plt.plot(set_x, mymodel)
 
-# Plot formatting
-plt.yticks(color='w')
-plt.xticks(color='w')
-plt.xlabel("Drownings")
-plt.ylabel("Ice-cream sales")
-
 
 # correlation coefficient
 print("r: ", r)
-print("pearsons corr: ", stats.pearsonr(set_x, CreateScatter(stand_dev, set_x)))
+print("pearsons corr: ", stats.pearsonr(set_x, global_y))
 
 
 plt.show()
