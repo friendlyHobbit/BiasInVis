@@ -8,7 +8,7 @@ import pandas as pd
 # set controlled variables
 n_data_points = 100
 stand_dev = 4
-set_corr = 0.6
+set_corr = 0.4
 #set_x = np.random.uniform(1, 20, n_data_points) 
 #set_x = np.random.standard_normal(n_data_points)
 set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in range(6))/6
@@ -179,7 +179,7 @@ in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
 
 # ----- dark outliers -------
 plt.scatter(set_x[in_all], global_y[in_all], c=dark_grey)     # inlier
-plt.scatter(set_x[out_all], global_y[out_all], c=light_grey)              # outlier
+plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey)              # outlier
 
 
 # ----- Outliers far away from regression line ------
