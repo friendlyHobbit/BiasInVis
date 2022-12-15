@@ -154,7 +154,8 @@ def GetRegOutlier():
 
 # ----- Plot prettiness -------
 dark_grey = '#454545'
-light_grey = '#999999'
+light_grey = '#E2E1E1'
+mid_grey = '#B8B8B8'
 # Plot formatting
 plt.yticks(color='w')
 plt.xticks(color='w')
@@ -178,7 +179,7 @@ in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
 #plt.scatter(set_x[out_all], global_y[out_all], c='#999999' , alpha=0.8)              # outlier
 
 # ----- dark outliers -------
-plt.scatter(set_x[in_all], global_y[in_all], c=dark_grey)     # inlier
+plt.scatter(set_x[in_all], global_y[in_all], c=mid_grey)     # inlier
 plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey)              # outlier
 
 
