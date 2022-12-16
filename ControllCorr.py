@@ -16,9 +16,6 @@ set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in r
 # error for adjusting the scatter to fit the correlation coefficient
 error = 0.01
 
-#test
-i = 0
-
 
 def CreateScatter(sd, x):
     temp_sd = sd
@@ -153,9 +150,10 @@ def GetRegOutlier():
 
 
 # ----- Plot prettiness -------
-dark_grey = '#454545'
-light_grey = '#E2E1E1'
-mid_grey = '#B8B8B8'
+dark_grey = '#404040'
+light_grey = '#BFBFBF'
+mid_grey = '#808080'
+dot_size = 15
 # Plot formatting
 plt.yticks(color='w')
 plt.xticks(color='w')
@@ -179,8 +177,8 @@ in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
 #plt.scatter(set_x[out_all], global_y[out_all], c='#999999' , alpha=0.8)              # outlier
 
 # ----- dark outliers -------
-plt.scatter(set_x[in_all], global_y[in_all], c=mid_grey)     # inlier
-plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey)              # outlier
+plt.scatter(set_x[in_all], global_y[in_all], c=mid_grey, s = dot_size)     # inlier
+plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey, s = dot_size)              # outlier
 
 
 # ----- Outliers far away from regression line ------
