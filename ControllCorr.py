@@ -17,9 +17,6 @@ set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in r
 # error for adjusting the scatter to fit the correlation coefficient
 error = 0.01
 
-#test
-i = 0
-
 
 def CreateScatter(sd, x):
     temp_sd = sd
