@@ -3,12 +3,13 @@ import matplotlib.axes as ax
 import numpy as np
 from scipy import stats 
 import pandas as pd 
+import os
 
 
 # set controlled variables
 n_data_points = 100
 stand_dev = 4
-set_corr = 0.4
+set_corr = 0.2          #  correlation value
 #set_x = np.random.uniform(1, 20, n_data_points) 
 #set_x = np.random.standard_normal(n_data_points)
 set_x = np.sum(np.random.randint(0,n_data_points, size=n_data_points) for i in range(6))/6
@@ -41,10 +42,10 @@ def CreateScatter(sd, x):
 
     return y
 
+
+
 # save y
 global_y = CreateScatter(stand_dev, set_x)     
-
-
 
 # get regression variables
 slope, intercept, r, p, std_err = stats.linregress(set_x, global_y) 
@@ -155,12 +156,48 @@ def GetRegOutlier():
 # ----- Plot prettiness -------
 dark_grey = '#454545'
 light_grey = '#999999'
+dot_size = 10
+
 # Plot formatting
 plt.yticks(color='w')
 plt.xticks(color='w')
-plt.xlabel("Video games")
-plt.ylabel("Sexism")
 
+# File name
+f_name = ""
+
+# ------- Control Condition ----------
+# Labels 1
+#plt.xlabel("X")
+#plt.ylabel("Y")
+#f_name = "control_xy"
+
+# ------- Believe-triggering Conditions ----------
+# Labels 1 #
+#plt.xlabel("Unhealthiness")
+#plt.ylabel("Meat consumption")
+#f_name = "trigger_meat"
+# Labels 2 #
+#plt.xlabel("Cannabis consumption")
+#plt.ylabel("Crimes commited")
+#f_name = "trigger_cannabis"
+# Labels 3 #
+#plt.xlabel("Highway Speed")
+#plt.ylabel("Car accidents")
+#f_name = "trigger_speed"
+
+# ------- Neutral Conditions ----------
+# Labels 1 #
+plt.xlabel("Rainfall")
+plt.ylabel("Number of letters in a city name")
+f_name = "neutral_rain"
+# Labels 2 #
+#plt.xlabel("Trees")
+#plt.ylabel("Names with T")
+#f_name = "neutral_trees"
+# Labels 3 #
+#plt.xlabel("Sun hours")
+#plt.ylabel("Phone calls")
+#f_name = "neutral_sun"
 
 # ----- Control ------
 #plt.scatter(set_x, global_y, c='#454545', alpha=0.8)    
@@ -178,8 +215,8 @@ in_all = np.logical_not(out_all)       #np.logical_or(inlx, inly)
 #plt.scatter(set_x[out_all], global_y[out_all], c='#999999' , alpha=0.8)              # outlier
 
 # ----- dark outliers -------
-plt.scatter(set_x[in_all], global_y[in_all], c=dark_grey)     # inlier
-plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey)              # outlier
+plt.scatter(set_x[in_all], global_y[in_all], c=dark_grey, s=dot_size)     # inlier
+plt.scatter(set_x[out_all], global_y[out_all], c=dark_grey, s=dot_size)              # outlier
 
 
 # ----- Outliers far away from regression line ------
@@ -203,6 +240,13 @@ print("r: ", r)
 print("pearsons corr: ", stats.pearsonr(set_x, global_y))
 
 
+# -------- Save or plot the scatter ------------
+# get current file's directory
+dir_name = os.path.dirname(__file__)
+results_dir = "\Results\Output_3"
+# save plot
+plt.savefig(dir_name+results_dir+"\Scatter_"+f_name+"_"+str(int(set_corr*10))+".png")
+print(dir_name+results_dir+"\Scatter_"+f_name+"_"+str(int(set_corr*10))+".png")
 plt.show()
 
 
