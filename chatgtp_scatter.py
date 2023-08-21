@@ -7,7 +7,7 @@ def generate_scatterplot(correlation):
     # generate random x and y data with the given correlation
     mean = [0, 0]
     cov = [[1, correlation], [correlation, 1]]
-    x_data, y_data = np.random.multivariate_normal(mean, cov, 50).T
+    x_data, y_data = np.random.multivariate_normal(mean, cov, 200).T
 
     # find indices of obvious outliers
     x_outliers = np.where(np.logical_or(x_data < -2, x_data > 2))[0]
@@ -19,11 +19,11 @@ def generate_scatterplot(correlation):
     y_data = np.delete(y_data, outlier_indices)
 
     # plot the scatterplot
-    plt.scatter(x_data, y_data)
+    plt.scatter(x_data, y_data, c='#000000', s=10)
     plt.title(f"Scatterplot with Correlation = {correlation}")
     plt.show()
 
 # generate scatterplots with correlation values of 0.2, 0.4, and 0.6
-correlations = [0.2, 0.4, 0.6]
+correlations = [0.2, 0.4, 0.6, 0.8, 1]
 for corr in correlations:
     generate_scatterplot(corr)
