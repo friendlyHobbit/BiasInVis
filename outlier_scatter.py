@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy 
+import random
 
 
 # outlier calc
@@ -42,14 +43,14 @@ def generate_data(correlation):
     # Mahalanobis distance for each row 
     detect_outliers(data_df)
     
-    # Delete rows where p-value is less than 0.001
+    # keep rows where p-value is more than 0.001
     data_df = data_df[data_df['p'] > 0.001]
 
     return data_df
 
 
 # add outlier back in
-def add_outliers(df, n_out, dist):
+def generate_outliers(df, dist):
     # take df
     x = df["x"]
     y = df["y"]
@@ -58,45 +59,61 @@ def add_outliers(df, n_out, dist):
     m, b = np.polyfit(x, y, 1)
     # linear regression: m*x+b
     y_point = m*x+b
-    print("y_point")
-    print(y_point)
-
-    plt.plot(x, m*x+b)
+    #plt.plot(x, y_point)
     
     # hold points in df
-    reg_df ={'x': x_data, 'y': y_data}
-    data_df = pd.DataFrame(reg_df, columns=['reg_x','reg_y'])
-    
+    reg_df ={'x': x, 'y': y_point}
+    data_df = pd.DataFrame(reg_df, columns=['x','y'])
+
+    # outlier df
+    outlier_df = pd.DataFrame()
+
+    rand_index = random.randint(0, len(data_df) - 1)
+    rand_row = data_df.iloc[rand_index].copy()  
+    rand_row['y'] += dist
+
+    # add to df
+    outlier_df = outlier_df._append(rand_row, ignore_index=True)
+
+    # check our outlier is an outlier
+    new_df = df._append(outlier_df, ignore_index=True)
+    # remove 2 columns
+    new_df = new_df.drop(columns=['Mahalanobis', 'p'])
+    detect_outliers(new_df)
+    # print rows where p-value is less than 0.001
+    print("outlier:")
+    print(new_df[new_df['p'] < 0.001])
+
+    return outlier_df    
 
 
 
-    # generate n_out points on line
-    # move points in y direction
-    # add points to data_df
 
-    return df
-
-
-add_outliers(generate_data(0.8), 0, 0)
-
-
-# generate scatterplots with correlation values of 0.2, 0.4, and 0.6
-corr = [0.8]
-
-for c in corr:
-    # get characteristics
+# generate scatterplots
+for x in range(5):
+    # get main correlation characteristics
+    c = 0.8
     df = generate_data(c)
-
     x_data = df.loc[:, ["x"]]
     y_data = df.loc[:, ["y"]]
 
-    # plot the scatterplot
+    # plot the main scatterplot
     plt.scatter(x_data, y_data, c='#000000', s=10)
+    
+    # add outliers
+    out_df = generate_outliers(df, x) 
+    
+    # plot outliers
+    plt.scatter(out_df['x'], out_df['y'], c='red', s=10)
+
+    # add
     plt.title(f"Scatterplot with Correlation = {c}")
     plt.tick_params(left = False, right = False , labelleft = False , 
                 labelbottom = False, bottom = False) 
+    
     plt.show()
-
+    
+    x+=.5
 
 
 
