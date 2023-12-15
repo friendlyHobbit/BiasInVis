@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import scipy 
 import random
+import os
+import csv
+
 
 
 # outlier calc
@@ -90,9 +93,9 @@ def generate_outliers(df, dist):
 
 
 # generate scatterplots
-for x in range(5):
+for x in np.arange(1,4,0.05):
     # get main correlation characteristics
-    c = 0.8
+    c = 0.4
     df = generate_data(c)
     x_data = df.loc[:, ["x"]]
     y_data = df.loc[:, ["y"]]
@@ -110,10 +113,29 @@ for x in range(5):
     plt.title(f"Scatterplot with Correlation = {c}")
     plt.tick_params(left = False, right = False , labelleft = False , 
                 labelbottom = False, bottom = False) 
+       
+    # save plots and df
+    dir_name = os.path.dirname(__file__)
+    results_dir = "\Results\Outlier_output"
+    f_name = 'corr_'+ str(c) + '_dist_' + str(round(x,2))
     
-    plt.show()
-    
-    x+=.5
+    # merge df with out_df
+    merged_df = df._append(out_df, ignore_index=True)
+    # remove 2 columns
+    merged_df = merged_df.drop(columns=['Mahalanobis', 'p'])
+    detect_outliers(merged_df)
+    # print rows where p-value is less than 0.001
+    print("df:")
+    print(merged_df)
+    # df to csv file
+    #np.savetxt((dir_name+f_name+'.csv'), merged_df, delimiter=',', fmt='%s')
+    merged_df.to_csv(os.path.join(dir_name+results_dir, f_name + '.csv'), index=False)
+
+    # plots
+    plt.savefig(dir_name+results_dir+"\p_"+f_name+"_"+".png")
+    plt.close()
+   
+
 
 
 
